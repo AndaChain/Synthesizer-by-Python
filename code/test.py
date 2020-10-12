@@ -1,11 +1,9 @@
 import numpy as np
-from math import pi,sin,cos
 import winsound as win
 from scipy.io.wavfile import write
-import time
-
+import matplotlib.pyplot as plt
 class make_sound:
-    def __init__(self, sps=32000, freq_hz=440.0, duration_s=2.0, atten=1):
+    def __init__(self, sps=44100 , freq_hz=440.00, duration_s=2.0, atten=1):
         # Samples per second
         self.sps = sps #32000
 
@@ -19,11 +17,34 @@ class make_sound:
         self.atten = atten #0.5
 
     def fourier(self):
-        each_sample_number = np.arange(self.duration_s * self.sps)
-        temp = [float(i) for i in range(int(self.duration_s) * self.sps)]
-        waveform = np.sin(2 * np.pi * each_sample_number * self.freq_hz / self.sps)
-        self.waveform_quiet = waveform * self.atten
+        #temp = [float(i) for i in range(int(self.duration_s) * self.sps)]
+        #waveform = np.sin(2 * np.pi * t * self.freq_hz / self.sps)
+        #self.waveform_quiet = waveform * self.atten
 
+        t = np.arange(self.duration_s * self.sps)
+        N = 100
+        k = np.arange(1,N+1)
+        C_0 = 1/2
+        C_x = np.array((k))
+        M = np.pi
+        wave = 0
+
+        N_temp = 4
+        for C in C_x:
+            pass
+            #wave += np.sin(( 2*np.pi*(C*27.5)*t/self.sps ))
+            #wave += C_0 + (M)*np.sin(( 2*np.pi*(C)*t/self.sps ))/(C)
+        # https://pages.mtu.edu/~suits/notefreqs.html using frequency
+        # f = 2^(n/12) * 440
+        n1 = 12
+        n2 = -12
+        wave = np.sin(( 2*np.pi*(2**(n1/12)*self.freq_hz)*t/self.sps )) + np.sin(( 2*np.pi*(2**(n2/12)*self.freq_hz)*t/self.sps ))
+        self.waveform_quiet = wave * self.atten + 50
+        #plt.plot( each_sample_number, self.waveform_quiet )
+        plt.plot( t, self.waveform_quiet)
+        plt.show()
+        
+        print(wave)
         """
         each_sample_number is time
         self.freq_hz is Frequency of wave
@@ -47,7 +68,7 @@ class make_sound:
         # Play the waveform out the speakers
         win.PlaySound("test.wav",win.SND_FILENAME)
 
-sine_wave = make_sound()
+sine_wave = make_sound(atten=0.5)
 sine_wave.fourier()
 sine_wave.write_waveform("test.wav")
 sine_wave.play_sound()
