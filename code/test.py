@@ -24,20 +24,23 @@ class make_sound:
         waveform = np.sin(2 * np.pi * each_sample_number * self.freq_hz / self.sps)
         self.waveform_quiet = waveform * self.atten
 
-        temp = [float(i) for i in range(int(self.duration_s) * self.sps)]
-        self.waveform_2 = [sin(2 * pi * i * self.freq_hz / self.sps) for i in temp]
+        """
+        each_sample_number is time
+        self.freq_hz is Frequency of wave
+        self.sps is number of sample
+        """
+
+        #temp = [float(i) for i in range(int(self.duration_s) * self.sps)]
+        #self.waveform_2 = [sin(2 * pi * i * self.freq_hz / self.sps) for i in temp]
         
     def write_waveform(self, name):
         # Write sound to .wav
         #waveform_integers = np.int64(self.waveform_quiet*9.223372*10**18)
-        waveform_integers_32 = np.int32(self.waveform_quiet*2147483647)
-        waveform_integers_16 = np.int16(self.waveform_quiet*32767) # each items at most 32767
-        wave_yourself = [int(i * 32767) for i in self.waveform_2]
-        write(name, self.sps, waveform_integers_16)
+        #waveform_integers_32 = np.int32(self.waveform_quiet*2147483647)
+        #wave_yourself = [int(i * 32767) for i in self.waveform_2]
 
-        print(waveform_integers_32[2000], len(waveform_integers_32))
-        print(waveform_integers_16[15000], len(waveform_integers_16))
-        print(wave_yourself[15000], len(wave_yourself))
+        waveform_integers_16 = np.int16(self.waveform_quiet*32767) # each items at most 32767
+        write(name, self.sps, waveform_integers_16) # you cann't using wave_yourself, and I don't know why.
         
 
     def play_sound(self):
