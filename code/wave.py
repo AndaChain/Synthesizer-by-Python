@@ -9,7 +9,7 @@ import math
 start_idx = 0
 
 class make_sound:
-    def __init__(self, sps=44100 , freq_hz=1.00, duration_s=5, atten=0.1):
+    def __init__(self, sps=44100 , freq_hz=442.00, duration_s=5, atten=0.1):
         # Samples per second
         self.sps = sps #44100 CD format
 
@@ -49,19 +49,10 @@ class make_sound:
         # https://pages.mtu.edu/~suits/notefreqs.html using frequency
         # f = 2^(n/12) * 440
 
-        self.waveform_quiet = self.atten*(self.osci())
-        
-        """
-        t is time
-        self.freq_hz is Frequency of wave
-        self.sps is number of sample
-        """
-    """def set_mode_n(self, mode, n):
-        self.mode = mode
-        self.n = n"""
+        self.waveform = self.atten*(self.Oscillators())
 
-    def osci(self, mode, n, close):
-        if(close):
+    def Oscillators(self, mode, n, close):
+        if(not close):
             return np.array(0)
         if(mode == 0): # sine wave
             return np.sin( 2*np.pi*(2**(n/12)*self.freq_hz)*self.t/self.sps )
@@ -79,12 +70,13 @@ class make_sound:
             return abs((2**(n/12)*self.freq_hz)*self.t/self.sps %4 - 2)-1
         elif(mode == 3):
             return (-2*self.atten/np.pi)*np.arctan( 1/( np.tan(  self.t*np.pi*self.freq_hz*(2**(n/12))/self.sps  ) ) )
-    def plot_wave(self):
-        plt.plot(self.t, self.waveform_quiet)
+    
+    def plot_wave(self, x, y):
+        plt.plot(x, y)
         plt.show()
 
     def write_waveform(self, name):
-        self.waveform_integers_16 = np.int16(self.waveform_quiet*32767) # each items at most 32767
+        self.waveform_integers_16 = np.int16(self.waveform*32767) # each items at most 32767
         write(name, self.sps, self.waveform_integers_16) # you cann't using wave_yourself, and I don't know why.
 
 if __name__ == "__main__":
