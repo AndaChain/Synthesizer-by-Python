@@ -1,15 +1,13 @@
 import numpy as np
 import winsound as win
 import sounddevice as sd
-import argparse
-import time
 from scipy.io.wavfile import write
 import matplotlib.pyplot as plt
-import math
+import matplotlib.animation as animation
 start_idx = 0
 
 class make_sound:
-    def __init__(self, sps=44100 , freq_hz=442.00, duration_s=5, atten=0.1):
+    def __init__(self, sps=44100 , freq_hz=440.00, duration_s=5, atten=0.1):
         # Samples per second
         self.sps = sps #44100 CD format
 
@@ -25,9 +23,9 @@ class make_sound:
         self.t = np.arange(self.duration_s*self.sps)
         
         self.close_list = []
-        """self.parser = argparse.ArgumentParser(add_help=False)
-        self.args, self.remaining = self.parser.parse_known_args()
-        self.args = self.parser.parse_args(self.remaining)"""
+
+        self.fig = plt.figure()
+        self.ax = self.fig.add_subplot(1,1,1)
 
     def crate_wave(self, mode, n):
         #temp = [float(i) for i in range(int(self.duration_s) * self.sps)]
@@ -49,11 +47,11 @@ class make_sound:
         # https://pages.mtu.edu/~suits/notefreqs.html using frequency
         # f = 2^(n/12) * 440
 
-        self.waveform = self.atten*(self.Oscillators())
+        self.waveform = self.atten*(self.Oscillators(mode, n, True))
 
-    def Oscillators(self, mode, n, close):
-        if(not close):
-            return np.array(0)
+    def Oscillators(self, mode, n, status):
+        if(not status):
+            return 0*np.arange(1136).reshape(-1,1)
         if(mode == 0): # sine wave
             return np.sin( 2*np.pi*(2**(n/12)*self.freq_hz)*self.t/self.sps )
         elif(mode == 1): # square wave
@@ -67,23 +65,30 @@ class make_sound:
 
             return np.array(wave_array).reshape(-1, 1)
         elif(mode == 2):
-            return abs((2**(n/12)*self.freq_hz)*self.t/self.sps %4 - 2)-1
+            print(self.freq_hz)
+            return abs(  4*((self.freq_hz*self.t*(2**(n/12)))/self.sps)%4  - 2)-1
         elif(mode == 3):
             return (-2*self.atten/np.pi)*np.arctan( 1/( np.tan(  self.t*np.pi*self.freq_hz*(2**(n/12))/self.sps  ) ) )
-    
-    def plot_wave(self, x, y):
-        plt.plot(x, y)
-        plt.show()
 
     def write_waveform(self, name):
         self.waveform_integers_16 = np.int16(self.waveform*32767) # each items at most 32767
         write(name, self.sps, self.waveform_integers_16) # you cann't using wave_yourself, and I don't know why.
+    
+    def plot_wave(self):
+        plt.plot(self.t[0:int(self.sps)], self.waveform[0:int(self.sps)])
+        plt.show()
+
+    def animate(self,i):
+        self.ax.plot(self.t[0:int(self.sps)], self.waveform[0:int(self.sps)])
+
+    def live_graphs(self):
+        ani = animation.FuncAnimation(self.fig, self.animate, interval=100)
+        plt.show()
 
 if __name__ == "__main__":
     wave = make_sound()
-    wave.crate_wave()
-    wave.plot_wave()
-
+    wave.crate_wave(3, 10)
+    wave.live_graphs()
 
 
 """
