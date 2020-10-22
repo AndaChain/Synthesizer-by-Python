@@ -65,7 +65,6 @@ class make_sound:
 
             return np.array(wave_array).reshape(-1, 1)
         elif(mode == 2):
-            print(self.freq_hz)
             return abs(  4*((self.freq_hz*self.t*(2**(n/12)))/self.sps)%4  - 2)-1
         elif(mode == 3):
             return (-2*self.atten/np.pi)*np.arctan( 1/( np.tan(  self.t*np.pi*self.freq_hz*(2**(n/12))/self.sps  ) ) )
