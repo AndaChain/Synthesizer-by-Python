@@ -4,10 +4,18 @@ import numpy as np
 import sounddevice as sd
 from wave import make_sound as make
 import time
+import pygame
+pygame.init()
+
+#camera wide & height depends on screen wide & height
+scr_w, scr_h = 640, 480
+
+screen = pygame.display.set_mode( (scr_w,scr_h) )
+surface = pygame.Surface( screen.get_size(), pygame.SRCALPHA )
 
 class play(make):
-    def __init__(self, sps=44100 , freq_hz=1.00, duration_s=5, atten=0.5):
-        super().__init__(sps=44100 , freq_hz=1.00, duration_s=5, atten=0.5)
+    def __init__(self, sps=44100 , freq_hz=440.00, duration_s=5, atten=1):
+        super().__init__(sps=44100 , freq_hz=440.00, duration_s=5, atten=1)
 
         # Samples per second
         self.sps = sps #44100 CD format
@@ -33,8 +41,10 @@ class play(make):
         self.form = "sine"
         self.N = "A"
         self.num = 1
-        self.state = self.close[self.form][2]
         self.waveform = 0
+
+        self.current = "sine A 0"
+        self.before = "sine"
 
     def callback(self, data=[], frames=0, time=0, status=0):
         
@@ -44,8 +54,8 @@ class play(make):
 
         for i in range(self.num):
             self.waveform += self.Oscillators(  self.close[self.form][0],
-                                            self.close[self.form][1]+i*8,
-                                            self.close[self.form][2]  )
+                                                self.close[self.form][1],
+                                                self.close[self.form][2]  )
 
         data[:] = self.atten * (self.waveform)
         self.start_idx += frames
@@ -54,12 +64,42 @@ class play(make):
         with sd.OutputStream(channels=1, callback=self.callback, samplerate=self.sps):
             while self.running:
                 sd.sleep(1)
+                WAVE = "saw" #ตัวแปรลอยสำหรับเลือกชนิดของสัญญาณจาก GUI
+                N = "1"
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_a:
+                            self.current = f"{WAVE} B {N}"
+                        if event.key == pygame.K_s:
+                            self.current = f"{WAVE} A {N}"
+                        if event.key == pygame.K_d:
+                            self.current = f"{WAVE} G {N}"
+                        if event.key == pygame.K_f:
+                            self.current = f"{WAVE} F {N}"
+                        if event.key == pygame.K_g:
+                            self.current = f"{WAVE} E {N}"
+                        if event.key == pygame.K_h:
+                            self.current = f"{WAVE} D {N}"
+                        if event.key == pygame.K_j:
+                            self.current = f"{WAVE} C {N}"
+
+                        if event.key == pygame.K_ESCAPE:
+                            self.current = "X"
+                        if event.key == pygame.K_SPACE:
+                            if(self.current == "||"):
+                                self.current = ">"
+                            elif(self.current == ">"):
+                                self.current = "||"
+                            else:
+                                self.current = "||"
+                    elif event.type == pygame.KEYUP:
+                        self.current = "sine A 0"
                 try:
-                    temp = [i for i in input(f"Enter {self.form} {self.N}:").split(" ")]
+                    #temp = [i for i in input(f"Enter {self.form} {self.N}:").split(" ")]
+                    temp = [i for i in self.current.split(" ")]
+                    self.num = int(temp[2])
                     mode = temp[0]
                     self.N = temp[1]
-                    self.num = int(temp[2])
-                    print( self.freq_hz*(2**(self.note[self.N]/12)) )
 
                     if(mode == "sine"):
                         self.form = "sine"
@@ -77,24 +117,26 @@ class play(make):
                         self.form = "sawtooth"
                         self.close[self.form][1] = self.note[self.N]
                         self.close[self.form][2] = True
-                    self.state = temp
+                    self.before = self.form
                     
                 except IndexError:
                     if(temp[0] == "||"):
-                        self.close[self.form][2] = False
-                        print(self.form,5)
+                        self.close[self.before][2] = False
+                        print(self.before,5)
                     elif(temp[0] == ">"):
-                        self.close[self.form][2] = True
-                        print(self.form)
+                        self.close[self.before][2] = True
+                        print(self.before)
                     elif(mode == "plot"):
                         self.plot_wave()
                     elif(temp[0] == 'X'):
-                        self.close[self.form][2] = False
+                        self.close[self.before][2] = False
                         break
-                    print(temp[0],"IndexError")
+                    print("IndexError")
                 except KeyError:
-                    print(self.state)
+                    print("KeyError")
+                except ValueError:
+                    print("ValueError")
                     
 if __name__ == "__main__":
-    wave_obj = play(sps=44100 , freq_hz=440.00, duration_s=5, atten=1)
+    wave_obj = play(sps=44100 , freq_hz=440.00, duration_s=5, atten=0.3)
     wave_obj.play_sound()
