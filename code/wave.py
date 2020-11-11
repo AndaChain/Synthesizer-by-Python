@@ -74,11 +74,11 @@ class make_sound:
         write(name, self.sps, self.waveform_integers_16) # you cann't using wave_yourself, and I don't know why.
     
     def plot_wave(self):
-        plt.plot(self.t[0:int(self.sps)], self.waveform[0:int(self.sps)])
+        plt.plot(self.t[0:100], self.waveform[0:100])
         plt.show()
 
     def animate(self,i):
-        self.ax.plot(self.t[0:int(self.sps)], self.waveform[0:int(self.sps)])
+        self.ax.plot(self.t[0:100], self.waveform[0:100])
 
     def live_graphs(self):
         ani = animation.FuncAnimation(self.fig, self.animate, interval=100)
@@ -86,8 +86,9 @@ class make_sound:
 
 if __name__ == "__main__":
     wave = make_sound()
-    wave.crate_wave(3, 10)
-    wave.live_graphs()
+    wave.crate_wave(0, 4)
+    wave.plot_wave()
+    wave.write_waveform("test.wav")
 
 
 """
