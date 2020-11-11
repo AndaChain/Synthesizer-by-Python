@@ -9,3 +9,5 @@ https://sites.google.com/site/thvsdidntribeuxngtn/bth-thi-sutr-khorngsrang-khxrd
 chrome-extension://gphandlahdpffmccakmbngmbjnjiiahp/https://python-sounddevice.readthedocs.io/_/downloads/en/0.3.13/pdf/ วิธีใช้ libray sounddevice เพื่อทำให้เสียงเล่นต่อเนื่องกันได้
 https://www.youtube.com/watch?v=ySltrUtlMwI&t=270s คนนี้ดูตอนแรกๆ
 https://www.youtube.com/watch?v=tgamhuQnOkM คนนี้ดูบ่อย
+
+(โหลดไฟล์ Music Box และ wave)
