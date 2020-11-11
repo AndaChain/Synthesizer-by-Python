@@ -10,4 +10,4 @@ chrome-extension://gphandlahdpffmccakmbngmbjnjiiahp/https://python-sounddevice.r
 https://www.youtube.com/watch?v=ySltrUtlMwI&t=270s คนนี้ดูตอนแรกๆ
 https://www.youtube.com/watch?v=tgamhuQnOkM คนนี้ดูบ่อย
 
-(โหลดไฟล์ Music Box และ wave)
+(โหลดไฟล์ Music Box และ wave เพื่อลองใช้โปรแกรม)
