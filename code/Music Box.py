@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
 """Play a signal."""
 import numpy as np
 import sounddevice as sd
 from wave import make_sound as make
-import time
 from tkinter import*
+import matplotlib.pyplot as plt
+from scipy.io.wavfile import write
 root = Tk()
 root.title("Music Box")
 root.geometry('1352x700+0+0')
@@ -37,8 +37,6 @@ class play(make):
         self.atten = atten #0.5
 
         self.start_idx = 0
-
-        #self.close = {"sine":[0, 0, False], "square":[1, 0, False], "triangle":[2, 0, False], "sawtooth":[3, 0, False]}
         
         self.signal_mode = {"sin":0, "squ":1, "tri":2, "saw":3}
         self.note = {"B":2, "Bb":1, "A":0, "G#":-1, "G":-2, "F#":-3, "F":-4, "E":-5, "D#":-6, "D":-7, "C#":-8, "C":-9}
@@ -52,24 +50,41 @@ class play(make):
         self.N = 0
         self.waveform = 0
         self.WAVE = "sin"
+        self.array_rec = []
 
+    # this is using for play sound continue
     def callback(self, data=[], frames=0, time=0, status=0):
-        
+        print(self.start_idx + np.arange(frames))
         self.t = (self.start_idx + np.arange(frames)) #/ self.sps
         self.t = self.t.reshape(-1, 1)
         self.waveform = 0
         self.waveform = np.ones((1136, 1), dtype=float)
-
         for i in self.key_array:
-            #self.waveform += self.Oscillators(self.keyboard[i][0], self.keyboard[i][1], self.keyboard[i][2])
             for j in range(self.N):
                 self.waveform += self.Oscillators(self.keyboard[i][0], self.keyboard[i][1], self.keyboard[i][2])
 
         data[:] = self.atten * (self.waveform)
         self.start_idx += frames
 
-    def play_sound(self):
+        temp = np.int16(self.waveform*3000)
+        self.array_rec.append(temp)
 
+    # this is for record sound wave to .wav file and show graph sound what you play
+    def record(self):
+        # record sound
+        rec = np.concatenate(self.array_rec)
+        write("test.wav", self.sps, rec)
+
+        # graph
+        nu = len(rec)
+        Time = np.arange(nu)
+        plt.xlim(1000,nu,1000*nu)
+        plt.ylim(1000,nu,1000*nu)
+        plt.plot(Time, rec)
+        plt.show()
+
+    # this method for run whatever you want runing parallel with runing sound
+    def play_sound(self):
         with sd.OutputStream(channels=1, callback=self.callback, samplerate=self.sps):
             sd.sleep(1)
             def sin_wave() :
@@ -125,9 +140,6 @@ class play(make):
             fg="white").grid(row=0,column=0,columnspan=11)
 
             #==================================================================
-
-            ##btnCr=Button(ABC, height=2, width=4,bd=4, text="Rec", font=('arial',18,'bold'),bg="black",fg="white")
-            ##btnCr.grid(row=0,column=1,padx=5,pady=5)
 
             btnCs=Button(ABC1, height=2, width=6,bd=4, text="sin", font=('arial',18,'bold'),bg="black",fg="white",command = sin_wave)
             btnCs.grid(row=1,column=4,padx=5,pady=5)
@@ -186,6 +198,7 @@ class play(make):
             btnA.grid(row=1,column=5,padx=5,pady=5)
             btnB=Button(ABC3, height=4, width=8, text="B", font=('arial',18,'bold'),bg="white",fg="black")
             btnB.grid(row=1,column=6,padx=5,pady=5)
+
             root.bind("<a>", wave_obj.KEY_A)
             root.bind("<s>", wave_obj.KEY_S)
             root.bind("<d>", wave_obj.KEY_D)
@@ -289,3 +302,4 @@ class play(make):
 if __name__ == "__main__":
     wave_obj = play(sps=44100 , freq_hz=440.00, duration_s=5, atten=0.3)
     wave_obj.play_sound()
+    wave_obj.record()
