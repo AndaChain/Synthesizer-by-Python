@@ -20,33 +20,14 @@ class make_sound:
         # Attenuation so the sound is reasonable
         self.atten = atten #0.5
 
+        # Time
         self.t = np.arange(self.duration_s*self.sps)
-        
-        self.close_list = []
 
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(1,1,1)
-
-    def crate_wave(self, mode, n):
-        #temp = [float(i) for i in range(int(self.duration_s) * self.sps)]
-        #waveform = np.sin(2 * np.pi * t * self.freq_hz / self.sps)
-        #self.waveform_quiet = waveform * self.atten
-
-        """N = 100
-        k = np.arange(1,N+1)
-        C_0 = 1/2
-        C_x = np.array((k))
-        M = np.pi
-        wave = 0
-        N_temp = 4
         
-        for C in C_x:
-            pass
-            #wave += C_0 + (M)*np.sin(( 2*np.pi*(C)*t/self.sps ))/(C)"""
-
+    def crate_wave(self, mode, n):
         # https://pages.mtu.edu/~suits/notefreqs.html using frequency
-        # f = 2^(n/12) * 440
-
         self.waveform = self.atten*(self.Oscillators(mode, n, True))
 
     def Oscillators(self, mode, n, status):
@@ -62,26 +43,18 @@ class make_sound:
                     wave_array.append(1)
                 else:
                     wave_array.append(-1)
-
             return np.array(wave_array).reshape(-1, 1)
-        elif(mode == 2):
+        elif(mode == 2): # triangle wave
             return abs(  4*((self.freq_hz*self.t*(2**(n/12)))/self.sps)%4  - 2)-1
-        elif(mode == 3):
-            return (-2*self.atten/np.pi)*np.arctan( 1/( np.tan(  self.t*np.pi*self.freq_hz*(2**(n/12))/self.sps  ) ) )
+        elif(mode == 3): # sawtooth wave
+            return (-2*self.atten/np.pi)*np.arctan( 1/( np.tan(  self.t*np.pi*self.freq_hz*(2**(n/12))/self.sps  ) ) )        
 
     def write_waveform(self, name):
-        self.waveform_integers_16 = np.int16(self.waveform*32767) # each items at most 32767
-        write(name, self.sps, self.waveform_integers_16) # you cann't using wave_yourself, and I don't know why.
+        self.waveform_integers_16 = np.int16(self.waveform*32767)
+        write(name, self.sps, self.waveform_integers_16)
     
     def plot_wave(self):
         plt.plot(self.t[0:100], self.waveform[0:100])
-        plt.show()
-
-    def animate(self,i):
-        self.ax.plot(self.t[0:100], self.waveform[0:100])
-
-    def live_graphs(self):
-        ani = animation.FuncAnimation(self.fig, self.animate, interval=100)
         plt.show()
 
 if __name__ == "__main__":
@@ -94,4 +67,5 @@ if __name__ == "__main__":
 """
 Thank you javidx9 from youtube https://www.youtube.com/channel/UC-yuWVUplUJZvieEligKBkA
 Thank you alicia.science from youtube https://www.youtube.com/watch?v=ySltrUtlMwI
+Thank you MajorThird from github https://github.com/MajorThird/continuous-synthesizer
 """
